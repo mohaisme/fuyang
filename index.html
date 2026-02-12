@@ -399,10 +399,10 @@
         rentalsData.forEach((rental, index) => {
             let slidesHtml = rental.media.map((item, mIdx) => {
                 if (item.type === 'video') {
-                    // 列表預覽模式：直接開啟 controls 讓使用者操作
+                    // 列表預覽模式：移除 muted，確保影片直接播放聲音
                     return `
                         <div class="slide-item ${mIdx === 0 ? 'active' : ''}">
-                            <video controls muted loop playsinline poster="${rental.media.find(m => m.type === 'image')?.url || ''}">
+                            <video controls autoplay loop playsinline poster="${rental.media.find(m => m.type === 'image')?.url || ''}">
                                 <source src="${item.url}" type="video/mp4">
                                 您的瀏覽器不支援影片播放。
                             </video>
@@ -441,12 +441,21 @@
             `;
         });
 
+        // 頁面加載後主動嘗試播放首屏影片（處理瀏覽器自動播放限制）
+        window.addEventListener('load', () => {
+            const firstVideos = document.querySelectorAll('.slide-item.active video');
+            firstVideos.forEach(v => {
+                v.play().catch(e => {
+                    console.log("瀏覽器限制帶聲自動播放，需使用者互動");
+                });
+            });
+        });
+
         function changeSlide(idx, dir) {
             const slider = document.getElementById(`slider-${idx}`);
             const items = slider.querySelectorAll('.slide-item');
             const activeIdx = Array.from(items).findIndex(i => i.classList.contains('active'));
             
-            // 如果當前是影片，切換前先暫停
             const currentVideo = items[activeIdx].querySelector('video');
             if (currentVideo) currentVideo.pause();
 
@@ -454,9 +463,10 @@
             const nextIdx = (activeIdx + dir + items.length) % items.length;
             items[nextIdx].classList.add('active');
             
-            // 如果下一張是影片，自動嘗試播放（靜音狀態下通常會成功）
             const nextVideo = items[nextIdx].querySelector('video');
-            if (nextVideo) nextVideo.play().catch(e => console.log("Auto-play blocked"));
+            if (nextVideo) {
+                nextVideo.play().catch(e => console.log("切換播放受限"));
+            }
         }
 
         let curR = -1, curI = -1;
