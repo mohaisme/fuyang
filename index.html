@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="福陽家園 - 提供優質出租物件，包含一樓店面、整層住家及精緻套房。近小叮噹科學園區、明新科大及湖口工業區。">
+    <meta name="keywords" content="福陽家園, 租屋, 新豐租屋, 湖口租屋, 店面出租, 套房出租">
+    <title>福陽家園 - 優質租屋首選</title>
+    
+    <!-- Tailwind CSS (透過 CDN 引入，不需額外下載 CSS 檔) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome 圖示 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts 字體 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            scroll-behavior: smooth;
+        }
+        /* Hero 區塊通用樣式 */
+        .hero-bg {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        /* 房型卡片增加滾動補償 */
+        .rental-card {
+            scroll-margin-top: 100px;
+        }
+        /* 輪播圖容器 */
+        .slide-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            overflow: hidden;
+            background-color: #f3f4f6;
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+        .slide-item {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: none;
+            transition: opacity 0.5s ease-in-out;
+            cursor: zoom-in;
+        }
+        .slide-item.active {
+            display: block;
+        }
+        .slide-item img, .slide-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        /* 輪播導航按鈕 */
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            z-index: 10;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+        .nav-btn:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        .prev-btn { left: 10px; }
+        .next-btn { right: 10px; }
+        
+        /* 標籤樣式 */
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* 燈箱 (Lightbox) 樣式 */
+        #lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        #lightbox.active {
+            display: flex;
+            opacity: 1;
+        }
+        #lightbox img, #lightbox video {
+            max-width: 85%;
+            max-height: 85%;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            border-radius: 4px;
+            user-select: none;
+        }
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            color: white;
+            border: none;
+            font-size: 3rem;
+            cursor: pointer;
+            padding: 20px;
+            z-index: 1010;
+            opacity: 0.6;
+            transition: opacity 0.3s, transform 0.2s;
+        }
+        .lightbox-nav:hover {
+            opacity: 1;
+            transform: translateY(-50%) scale(1.1);
+        }
+        .lb-prev { left: 20px; }
+        .lb-next { right: 20px; }
+        
+        .close-lightbox {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            z-index: 1020;
+            opacity: 0.7;
+        }
+        .close-lightbox:hover { opacity: 1; }
+
+        #lightbox-counter {
+            position: absolute;
+            bottom: 30px;
+            color: white;
+            font-size: 1rem;
+            background: rgba(0,0,0,0.5);
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+
+        .call-btn {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- 導航欄 -->
+    <nav class="bg-white shadow-md fixed w-full z-50">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-blue-600 flex items-center">
+                <i class="fa-solid fa-house-chimney mr-2"></i> 福陽家園
+            </a>
+            <div class="hidden md:flex space-x-8">
+                <a href="#features" class="hover:text-blue-600 transition">特色</a>
+                <a href="#rentals" class="hover:text-blue-600 transition">出租物件</a>
+                <a href="#contact" class="hover:text-blue-600 transition">聯絡我們</a>
+            </div>
+            <button class="md:hidden text-gray-600" onclick="toggleMobileMenu()">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t px-6 py-4">
+            <a href="#features" class="block py-2 hover:text-blue-600" onclick="toggleMobileMenu()">特色</a>
+            <a href="#rentals" class="block py-2 hover:text-blue-600" onclick="toggleMobileMenu()">出租物件</a>
+            <a href="#contact" class="block py-2 hover:text-blue-600" onclick="toggleMobileMenu()">聯絡我們</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section (背景圖路徑在此修改) -->
+    <header class="hero-bg h-screen flex items-center justify-center text-center px-6" 
+            style="background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('./shared/buildingoutlook.jpg');">
+        <div class="text-white max-w-4xl">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6 drop-shadow-lg text-white">舒適生活，從福陽開始</h1>
+            <p class="text-xl md:text-2xl mb-10 drop-shadow-md text-gray-100">位於竹5鄉道，近小叮噹樂園、明新科大、湖口工業區</p>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+                <a href="#store" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl font-bold transition shadow-lg flex flex-col items-center justify-center gap-1 group">
+                    <i class="fa-solid fa-shop group-hover:scale-110 transition"></i>
+                    <span class="text-sm md:text-base">一樓店面</span>
+                </a>
+                <a href="#floor2" class="bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-xl font-bold transition shadow-lg flex flex-col items-center justify-center gap-1 group">
+                    <i class="fa-solid fa-couch group-hover:scale-110 transition"></i>
+                    <span class="text-sm md:text-base">整層住家</span>
+                </a>
+                <a href="#suite-large" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-3 rounded-xl font-bold transition shadow-lg flex flex-col items-center justify-center gap-1 group">
+                    <i class="fa-solid fa-bed group-hover:scale-110 transition"></i>
+                    <span class="text-sm md:text-base">精緻大套房</span>
+                </a>
+                <a href="#suite-small" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-xl font-bold transition shadow-lg flex flex-col items-center justify-center gap-1 group">
+                    <i class="fa-solid fa-door-closed group-hover:scale-110 transition"></i>
+                    <span class="text-sm md:text-base">溫馨小套房</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 特色說明 -->
+    <section id="features" class="py-20 container mx-auto px-6">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">地理位置與特色</h2>
+            <div class="w-20 h-1 bg-blue-600 mx-auto"></div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="bg-white p-8 rounded-xl shadow-lg hover:-translate-y-2 transition duration-300">
+                <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-2xl mb-6">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-4">便利交通網</h3>
+                <ul class="space-y-3 text-gray-600">
+                    <li><i class="fa-solid fa-check text-green-500 mr-2"></i>走路即達 7-11、萊爾富</li>
+                    <li><i class="fa-solid fa-check text-green-500 mr-2"></i>2分鐘 - 小叮噹科學主題樂園</li>
+                    <li><i class="fa-solid fa-check text-green-500 mr-2"></i>3分鐘 - 明新科技大學</li>
+                    <li><i class="fa-solid fa-check text-green-500 mr-2"></i>5分鐘 - 新豐火車站</li>
+                </ul>
+            </div>
+            <div class="bg-white p-8 rounded-xl shadow-lg hover:-translate-y-2 transition duration-300">
+                <div class="w-14 h-14 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-2xl mb-6">
+                    <i class="fa-solid fa-piggy-bank"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-4">費用透明</h3>
+                <ul class="space-y-3 text-gray-600">
+                    <li><i class="fa-solid fa-star text-yellow-500 mr-2"></i><strong>無管理費 / 無仲介費</strong></li>
+                    <li><i class="fa-solid fa-bolt text-yellow-500 mr-2"></i>獨立水電表</li>
+                </ul>
+            </div>
+            <div class="bg-white p-8 rounded-xl shadow-lg hover:-translate-y-2 transition duration-300">
+                <div class="w-14 h-14 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-2xl mb-6">
+                    <i class="fa-solid fa-house-user"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-4">住房貼心設施</h3>
+                <ul class="space-y-3 text-gray-600">
+                    <li><i class="fa-solid fa-faucet text-blue-400 mr-2"></i>飲水機</li>
+                    <li><i class="fa-solid fa-shirt text-blue-400 mr-2"></i>洗衣機</li>
+                    <li><i class="fa-solid fa-sun text-blue-400 mr-2"></i>手動升降晾衣架</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 出租物件清單 -->
+    <section id="rentals" class="bg-gray-100 py-20">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">出租物件</h2>
+                <div class="w-20 h-1 bg-blue-600 mx-auto mb-6"></div>
+            </div>
+            <div id="rental-container" class="grid grid-cols-1 lg:grid-cols-2 gap-10"></div>
+        </div>
+    </section>
+
+    <!-- 聯絡資訊 -->
+    <section id="contact" class="py-20 bg-white">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">預約看房</h2>
+            <div class="bg-blue-50 p-8 rounded-2xl max-w-2xl mx-auto shadow-inner">
+                <p class="text-xl mb-6">喜歡這裡的環境嗎？歡迎隨時聯繫看屋！</p>
+                <a href="tel:0933729593" class="call-btn inline-flex items-center bg-green-500 text-white px-8 py-4 rounded-full text-lg font-bold hover:bg-green-600 transition shadow-lg">
+                    <i class="fa-solid fa-phone mr-3"></i> 撥打電話詢問
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 燈箱視窗 -->
+    <div id="lightbox" onclick="closeLightbox()">
+        <span class="close-lightbox" onclick="closeLightbox()">&times;</span>
+        <button class="lightbox-nav lb-prev" onclick="event.stopPropagation(); navigateLightbox(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+        <div id="lightbox-content" class="flex items-center justify-center w-full h-full" onclick="event.stopPropagation()"></div>
+        <button class="lightbox-nav lb-next" onclick="event.stopPropagation(); navigateLightbox(1)"><i class="fa-solid fa-chevron-right"></i></button>
+        <div id="lightbox-counter"></div>
+    </div>
+
+    <footer class="bg-gray-800 text-white py-8 text-center">
+        <p>&copy; 2026 福陽家園. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // 物件資料定義 (圖片路徑在此維護)
+        const rentalsData = [
+            {
+                id: "store",
+                title: "黃金店面",
+                price: "20,000",
+                floor: "1樓",
+                badges: ["前庭", "衛浴", "後陽台"],
+                details: ["水電依臺電帳單繳付", "整體空間約23坪", "適合：個人工作室、美容業、零售業等"],
+                media: [
+                    { type: 'image', url: './floor1/buildingoutlook.jpg' },
+                    { type: 'image', url: './floor1/frontdoor01.jpg' },
+                    { type: 'image', url: './floor1/frontdoor02.jpg' },
+                    { type: 'image', url: './floor1/compartment01.jpg' },
+                    { type: 'image', url: './floor1/compartment02.jpg' },
+                    { type: 'image', url: './floor1/compartment03.jpg' },
+                    { type: 'image', url: './floor1/compartment04.jpg' },
+                    { type: 'image', url: './floor1/backbalcony.jpg' },
+                    { type: 'image', url: './floor1/bathroom.jpg' },
+                    { type: 'video', url: './floor1/videopreview.mp4' }
+                ]
+            },
+            {
+                id: "floor2",
+                title: "整層舒適住家",
+                price: "13,600",
+                floor: "2樓",
+                badges: ["1+1房", "開放式空間", "雙陽台"],
+                details: ["租金含網路及第四台，水費每月100元/人，電費5元/度", "家電：變頻冷氣、冰箱、洗衣機、電視、太陽能熱水器", "家具：晾衣架、衣櫥、餐桌椅、沙發、床組、書桌"],
+                media: [
+                    { type: 'image', url: './floor2/bedroom01.jpg' },
+                    { type: 'image', url: './floor2/bedroom02.jpg' },
+                    { type: 'image', url: './floor2/bedroom03.jpg' },
+                    { type: 'image', url: './floor2/wardrobe.jpg' },
+                    { type: 'image', url: './floor2/frontbalcony01.jpg' },
+                    { type: 'image', url: './floor2/frontbalcony02.jpg' },
+                    { type: 'image', url: './floor2/livingroom01.jpg' },
+                    { type: 'image', url: './floor2/livingroom02.jpg' },
+                    { type: 'image', url: './floor2/kitchen01.jpg' },
+                    { type: 'image', url: './floor2/kitchen02.jpg' },
+                    { type: 'image', url: './floor2/backbalcony01.jpg' },
+                    { type: 'image', url: './floor2/backbalcony02.jpg' },
+                    { type: 'image', url: './floor2/smallroom01.jpg' },
+                    { type: 'image', url: './floor2/smallroom02.jpg' },
+                    { type: 'image', url: './floor2/smallroom03.jpg' },
+                    { type: 'image', url: './floor2/bathroom.jpg' }
+                ]
+            },
+            {
+                id: "suite-large",
+                title: "精緻大套房",
+                price: "8,000",
+                floor: "3、4樓",
+                badges: ["對外窗", "獨立陽台"],
+                details: ["租金含網路及第四台，水費每月100元/人，電費5元/度", "家電：變頻冷氣、小冰箱、液晶電視、太陽能熱水器", "家具：衣櫥、雙人床、書桌椅"],
+                media: [
+                    { type: 'image', url: './floor3-5/large/bedroom01.jpg' },
+                    { type: 'image', url: './floor3-5/large/bedroom02.jpg' },
+                    { type: 'image', url: './floor3-5/large/balcony01.jpg' },
+                    { type: 'image', url: './floor3-5/large/balcony02.jpg' },
+                    { type: 'image', url: './floor3-5/large/bathroom.jpg' },
+                    { type: 'image', url: './shared/publicspace.jpg' }
+                ]
+            },
+            {
+                id: "suite-small",
+                title: "溫馨小套房",
+                price: "6,500",
+                floor: "3、4、5樓",
+                badges: ["高CP值", "對外窗"],
+                details: ["租金含網路及第四台，水費每月100元/人，電費5元/度", "設備：分離式冷氣、小冰箱、電視、太陽能熱水器", "家具：衣櫥、床組、書桌"],
+                media: [
+                    { type: 'image', url: './floor3-5/small/bedroom01.jpg' },
+                    { type: 'image', url: './floor3-5/small/bedroom02.jpg' },
+                    { type: 'image', url: './floor3-5/small/bathroom.jpg' },
+                    { type: 'image', url: './shared/publicspace.jpg' }
+                ]
+            }
+        ];
+
+        // 渲染房型卡片邏輯
+        const container = document.getElementById('rental-container');
+        rentalsData.forEach((rental, index) => {
+            let slidesHtml = rental.media.map((item, mIdx) => {
+                if (item.type === 'video') {
+                    return `
+                        <div class="slide-item ${mIdx === 0 ? 'active' : ''}" onclick="openLightbox(${index}, ${mIdx})">
+                            <video muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()">
+                                <source src="${item.url}" type="video/mp4">
+                            </video>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="slide-item ${mIdx === 0 ? 'active' : ''}" onclick="openLightbox(${index}, ${mIdx})">
+                            <img src="${item.url}" alt="${rental.title}" loading="lazy">
+                        </div>
+                    `;
+                }
+            }).join('');
+
+            container.innerHTML += `
+                <div id="${rental.id}" class="rental-card bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col h-full border border-gray-100">
+                    <div class="slide-container" id="slider-${index}">
+                        ${slidesHtml}
+                        ${rental.media.length > 1 ? `
+                            <button class="nav-btn prev-btn" onclick="event.stopPropagation(); changeSlide(${index}, -1)"><i class="fa-solid fa-chevron-left"></i></button>
+                            <button class="nav-btn next-btn" onclick="event.stopPropagation(); changeSlide(${index}, 1)"><i class="fa-solid fa-chevron-right"></i></button>
+                        ` : ''}
+                    </div>
+                    <div class="p-8 flex-1 flex flex-col">
+                        <div class="flex justify-between items-start mb-2">
+                            <div><span class="text-sm text-gray-500 font-semibold">${rental.floor}</span><h3 class="text-2xl font-bold mt-1">${rental.title}</h3></div>
+                            <div class="text-right"><p class="text-2xl font-bold text-blue-600">$${rental.price}</p></div>
+                        </div>
+                        <div class="mb-6">${rental.badges.map(b => `<span class="tag bg-blue-100 text-blue-800">${b}</span>`).join('')}</div>
+                        <ul class="text-gray-600 text-sm mb-6 flex-1">${rental.details.map(d => `<li class="mb-2"><i class="fa-solid fa-caret-right text-blue-500 mr-2"></i>${d}</li>`).join('')}</ul>
+                        <a href="tel:0933729593" class="call-btn block text-center w-full bg-gray-800 text-white py-3 rounded-lg hover:bg-gray-900 transition font-medium">
+                            <i class="fa-solid fa-phone mr-2"></i>撥打電話詢問
+                        </a>
+                    </div>
+                </div>
+            `;
+        });
+
+        function changeSlide(idx, dir) {
+            const slider = document.getElementById(`slider-${idx}`);
+            const items = slider.querySelectorAll('.slide-item');
+            const activeIdx = Array.from(items).findIndex(i => i.classList.contains('active'));
+            items[activeIdx].classList.remove('active');
+            items[(activeIdx + dir + items.length) % items.length].classList.add('active');
+        }
+
+        let curR = -1, curI = -1;
+        function openLightbox(r, i) {
+            curR = r; curI = i;
+            const lb = document.getElementById('lightbox');
+            const content = document.getElementById('lightbox-content');
+            const item = rentalsData[r].media[i];
+            
+            if (item.type === 'video') {
+                content.innerHTML = `<video controls autoplay class="max-w-full max-h-full"><source src="${item.url}" type="video/mp4"></video>`;
+            } else {
+                content.innerHTML = `<img src="${item.url}" alt="放大照片" class="max-w-full max-h-full">`;
+            }
+
+            document.getElementById('lightbox-counter').innerText = `${rentalsData[r].title}: ${i+1}/${rentalsData[r].media.length}`;
+            lb.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeLightbox() { 
+            document.getElementById('lightbox').classList.remove('active'); 
+            document.getElementById('lightbox-content').innerHTML = ''; 
+            document.body.style.overflow = ''; 
+        }
+        function navigateLightbox(dir) {
+            curI = (curI + dir + rentalsData[curR].media.length) % rentalsData[curR].media.length;
+            openLightbox(curR, curI);
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        // 處理初次加載或手動輸入連結時的跳轉
+        function handleHashScroll() {
+            const hash = window.location.hash;
+            if (hash) {
+                const target = document.querySelector(hash);
+                if (target) {
+                    const offset = 100;
+                    const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                    window.scrollTo({ top, behavior: 'smooth' });
+                }
+            }
+        }
+
+        // 點擊平滑滾動（確保網址會更新）
+        function smoothScroll(selector) {
+            // 現在已經改用原生 <a> 連結，此函數僅作為補充
+            const target = document.querySelector(selector);
+            if (target) {
+                const offset = 100;
+                const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                window.scrollTo({ top, behavior: 'smooth' });
+            }
+        }
+
+        // 監聽網址 Hash 變化與初始加載
+        window.addEventListener('load', handleHashScroll);
+        window.addEventListener('hashchange', handleHashScroll);
+    </script>
+</body>
+</html>
