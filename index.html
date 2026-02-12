@@ -7,7 +7,7 @@
     <meta name="keywords" content="福陽家園, 租屋, 新豐租屋, 湖口租屋, 店面出租, 套房出租">
     <title>福陽家園 - 優質租屋首選</title>
     
-    <!-- Tailwind CSS (透過 CDN 引入，不需額外下載 CSS 檔) -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome 圖示 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -19,17 +19,14 @@
             font-family: 'Noto Sans TC', sans-serif;
             scroll-behavior: smooth;
         }
-        /* Hero 區塊通用樣式 */
         .hero-bg {
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
         }
-        /* 房型卡片增加滾動補償 */
         .rental-card {
             scroll-margin-top: 100px;
         }
-        /* 輪播圖容器 */
         .slide-container {
             position: relative;
             width: 100%;
@@ -44,17 +41,21 @@
             height: 100%;
             display: none;
             transition: opacity 0.5s ease-in-out;
-            cursor: zoom-in;
         }
         .slide-item.active {
             display: block;
         }
-        .slide-item img, .slide-item video {
+        .slide-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: zoom-in;
+        }
+        .slide-item video {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        /* 輪播導航按鈕 */
         .nav-btn {
             position: absolute;
             top: 50%;
@@ -74,7 +75,6 @@
         .prev-btn { left: 10px; }
         .next-btn { right: 10px; }
         
-        /* 標籤樣式 */
         .tag {
             display: inline-block;
             padding: 0.25rem 0.75rem;
@@ -85,7 +85,6 @@
             margin-bottom: 0.5rem;
         }
 
-        /* 燈箱 (Lightbox) 樣式 */
         #lightbox {
             display: none;
             position: fixed;
@@ -109,7 +108,6 @@
             max-height: 85%;
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
             border-radius: 4px;
-            user-select: none;
         }
         .lightbox-nav {
             position: absolute;
@@ -154,12 +152,6 @@
             border-radius: 20px;
         }
 
-        .call-btn {
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        /* 回到頂部按鈕 */
         #back-to-top {
             position: fixed;
             bottom: 30px;
@@ -183,18 +175,6 @@
         #back-to-top.show {
             opacity: 1;
             visibility: visible;
-        }
-        #back-to-top:hover {
-            background-color: #1d4ed8;
-            transform: translateY(-5px);
-        }
-        @media (max-width: 768px) {
-            #back-to-top {
-                bottom: 20px;
-                right: 20px;
-                width: 45px;
-                height: 45px;
-            }
         }
     </style>
 </head>
@@ -222,12 +202,12 @@
         </div>
     </nav>
 
-    <!-- Hero Section (背景圖路徑在此修改) -->
+    <!-- Hero Section -->
     <header class="hero-bg h-screen flex items-center justify-center text-center px-6" 
             style="background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('./shared/buildingoutlook.jpg');">
         <div class="text-white max-w-4xl">
-            <h1 class="text-4xl md:text-6xl font-bold mb-6 drop-shadow-lg text-white">舒適生活，從福陽開始</h1>
-            <p class="text-xl md:text-2xl mb-10 drop-shadow-md text-gray-100">位於竹5鄉道，近小叮噹樂園、明新科大、湖口工業區</p>
+            <h1 class="text-4xl md:text-6xl font-bold mb-6 drop-shadow-lg">舒適生活，從福陽開始</h1>
+            <p class="text-xl md:text-2xl mb-10 drop-shadow-md">位於竹5鄉道，近小叮噹樂園、明新科大、湖口工業區</p>
             
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
                 <a href="#store" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl font-bold transition shadow-lg flex flex-col items-center justify-center gap-1 group">
@@ -336,7 +316,6 @@
     </footer>
 
     <script>
-        // 物件資料定義 (圖片路徑在此維護)
         const rentalsData = [
             {
                 id: "store",
@@ -346,6 +325,7 @@
                 badges: ["前庭", "衛浴", "後陽台"],
                 details: ["水電依臺電帳單繳付", "整體空間約23坪", "適合：個人工作室、美容業、零售業等"],
                 media: [
+                    { type: 'video', url: './floor1/videopreview.mp4' },
                     { type: 'image', url: './floor1/buildingoutlook.jpg' },
                     { type: 'image', url: './floor1/frontdoor01.jpg' },
                     { type: 'image', url: './floor1/frontdoor02.jpg' },
@@ -354,8 +334,7 @@
                     { type: 'image', url: './floor1/compartment03.jpg' },
                     { type: 'image', url: './floor1/compartment04.jpg' },
                     { type: 'image', url: './floor1/backbalcony.jpg' },
-                    { type: 'image', url: './floor1/bathroom.jpg' },
-                    { type: 'video', url: './floor1/videopreview.mp4' }
+                    { type: 'image', url: './floor1/bathroom.jpg' }
                 ]
             },
             {
@@ -390,7 +369,7 @@
                 price: "8,000",
                 floor: "3、4樓",
                 badges: ["對外窗", "獨立陽台"],
-                details: ["租金含網路及第四台，水費每月100元/人，電費5元/度", "家電：變頻冷氣、小冰箱、液晶電視、太陽能熱水器", "家具：衣櫥、雙人床、書桌椅"],
+                details: ["租金含網路及第四台，水費每月100元/人，電費5元/度", "家電：變頻冷氣、小冰箱、液晶電視、太陽能熱水器", "家具：衣櫥、床組、書桌椅"],
                 media: [
                     { type: 'image', url: './floor3-5/large/bedroom01.jpg' },
                     { type: 'image', url: './floor3-5/large/bedroom02.jpg' },
@@ -416,15 +395,16 @@
             }
         ];
 
-        // 渲染房型卡片邏輯
         const container = document.getElementById('rental-container');
         rentalsData.forEach((rental, index) => {
             let slidesHtml = rental.media.map((item, mIdx) => {
                 if (item.type === 'video') {
+                    // 列表預覽模式：直接開啟 controls 讓使用者操作
                     return `
-                        <div class="slide-item ${mIdx === 0 ? 'active' : ''}" onclick="openLightbox(${index}, ${mIdx})">
-                            <video muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()">
+                        <div class="slide-item ${mIdx === 0 ? 'active' : ''}">
+                            <video controls muted loop playsinline poster="${rental.media.find(m => m.type === 'image')?.url || ''}">
                                 <source src="${item.url}" type="video/mp4">
+                                您的瀏覽器不支援影片播放。
                             </video>
                         </div>
                     `;
@@ -465,8 +445,18 @@
             const slider = document.getElementById(`slider-${idx}`);
             const items = slider.querySelectorAll('.slide-item');
             const activeIdx = Array.from(items).findIndex(i => i.classList.contains('active'));
+            
+            // 如果當前是影片，切換前先暫停
+            const currentVideo = items[activeIdx].querySelector('video');
+            if (currentVideo) currentVideo.pause();
+
             items[activeIdx].classList.remove('active');
-            items[(activeIdx + dir + items.length) % items.length].classList.add('active');
+            const nextIdx = (activeIdx + dir + items.length) % items.length;
+            items[nextIdx].classList.add('active');
+            
+            // 如果下一張是影片，自動嘗試播放（靜音狀態下通常會成功）
+            const nextVideo = items[nextIdx].querySelector('video');
+            if (nextVideo) nextVideo.play().catch(e => console.log("Auto-play blocked"));
         }
 
         let curR = -1, curI = -1;
@@ -486,11 +476,13 @@
             lb.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
+
         function closeLightbox() { 
             document.getElementById('lightbox').classList.remove('active'); 
             document.getElementById('lightbox-content').innerHTML = ''; 
             document.body.style.overflow = ''; 
         }
+
         function navigateLightbox(dir) {
             curI = (curI + dir + rentalsData[curR].media.length) % rentalsData[curR].media.length;
             openLightbox(curR, curI);
@@ -500,21 +492,11 @@
             document.getElementById('mobile-menu').classList.toggle('hidden');
         }
 
-        // 回到頂部功能
         function scrollToTop() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-            // 移除 URL 的 hash
-            if (history.pushState) {
-                history.pushState(null, null, ' ');
-            } else {
-                window.location.hash = '';
-            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (history.pushState) history.pushState(null, null, ' ');
         }
 
-        // 處理初次加載或手動輸入連結時的跳轉
         function handleHashScroll() {
             const hash = window.location.hash;
             if (hash) {
@@ -527,11 +509,8 @@
             }
         }
 
-        // 監聽網址 Hash 變化與初始加載
         window.addEventListener('load', handleHashScroll);
         window.addEventListener('hashchange', handleHashScroll);
-
-        // 監聽捲動事件以顯示/隱藏回到頂部按鈕
         window.addEventListener('scroll', () => {
             const btt = document.getElementById('back-to-top');
             if (window.pageYOffset > 300) {
