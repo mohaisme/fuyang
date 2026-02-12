@@ -158,6 +158,44 @@
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
         }
+
+        /* 回到頂部按鈕 */
+        #back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background-color: #2563eb;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+            z-index: 100;
+        }
+        #back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        #back-to-top:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-5px);
+        }
+        @media (max-width: 768px) {
+            #back-to-top {
+                bottom: 20px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -286,6 +324,11 @@
         <div id="lightbox-content" class="flex items-center justify-center w-full h-full" onclick="event.stopPropagation()"></div>
         <button class="lightbox-nav lb-next" onclick="event.stopPropagation(); navigateLightbox(1)"><i class="fa-solid fa-chevron-right"></i></button>
         <div id="lightbox-counter"></div>
+    </div>
+
+    <!-- 回到頂部按鈕 -->
+    <div id="back-to-top" title="回到頂部" onclick="scrollToTop()">
+        <i class="fa-solid fa-arrow-up"></i>
     </div>
 
     <footer class="bg-gray-800 text-white py-8 text-center">
@@ -457,6 +500,20 @@
             document.getElementById('mobile-menu').classList.toggle('hidden');
         }
 
+        // 回到頂部功能
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+            // 移除 URL 的 hash
+            if (history.pushState) {
+                history.pushState(null, null, ' ');
+            } else {
+                window.location.hash = '';
+            }
+        }
+
         // 處理初次加載或手動輸入連結時的跳轉
         function handleHashScroll() {
             const hash = window.location.hash;
@@ -470,20 +527,19 @@
             }
         }
 
-        // 點擊平滑滾動（確保網址會更新）
-        function smoothScroll(selector) {
-            // 現在已經改用原生 <a> 連結，此函數僅作為補充
-            const target = document.querySelector(selector);
-            if (target) {
-                const offset = 100;
-                const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
-                window.scrollTo({ top, behavior: 'smooth' });
-            }
-        }
-
         // 監聽網址 Hash 變化與初始加載
         window.addEventListener('load', handleHashScroll);
         window.addEventListener('hashchange', handleHashScroll);
+
+        // 監聽捲動事件以顯示/隱藏回到頂部按鈕
+        window.addEventListener('scroll', () => {
+            const btt = document.getElementById('back-to-top');
+            if (window.pageYOffset > 300) {
+                btt.classList.add('show');
+            } else {
+                btt.classList.remove('show');
+            }
+        });
     </script>
 </body>
 </html>
